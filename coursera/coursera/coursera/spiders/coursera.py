@@ -26,21 +26,48 @@ class DC_Chapter_Spider( scrapy.Spider ):
         except AttributeError as e:
             print('Failed to created list of courses.')
 
+        count = 1
         # Iterating through courses
         for course in courses:
             # Extracting course title
             try:
-                course_title = course.css("h2::text").extract_first()
-                course_rating = course.css('span.ratings-text::text').extract_first()
-                course_url = course.css('a::attr(href)').extract_first()
+                # Extracting course title
+                if course.css("h2"):
+                    course_title = course.css("h2::text").extract_first()
+                else:
+                    course_title = "N / A"
 
-                print(course_title)
+                # Extracting course rating
+                if course.css('span.ratings-text'):
+                    course_rating = course.css('span.ratings-text::text').extract_first()
+                else:
+                    course_rating = "N / A"
+
+                # Extracting students quantity
+                if course.css('span.enrollment-number'):
+                    students_num = course.css('span.enrollment-number::text').extract_first()
+                else:
+                    students_num = "N / A"
+
+                # Extracting course url
+                if course.css('a::attr(href)'):
+                    course_url = course.css('a::attr(href)').extract_first()
+                else:
+                    course_url = "N / A"
+                    pass
+
+
+
+                print('\n'+ str(count) + ('  |')+('<'*3)+('-'*7)+ ' ' + course_title +('-'*7)+('>'*3)+('|')+'\n')
+                #print(course_title)
                 print(course_rating)
                 print(course_url)
+                print(students_num)
                 print()
                 print()
                 print()
                 print()
+                count += 1
             except AttributeError as e:
                 print(e)
 
