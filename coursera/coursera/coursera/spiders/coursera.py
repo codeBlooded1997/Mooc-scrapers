@@ -15,14 +15,12 @@ class DC_Chapter_Spider( scrapy.Spider ):
         # Narrow in to list of courses
         try:
             discovery_course = response.css( 'ul.ais-InfiniteHits-list' )
-            print('Directory FOUNDDDDDDDD!!!')
         except AttributeError as e:
             print('Something seems to be missing with the tag')
 
         # Directing to courses
         try:
             courses = discovery_course.css('li')
-            print('COURSES LIST CREATED!!!')
         except AttributeError as e:
             print('Failed to created list of courses.')
 
