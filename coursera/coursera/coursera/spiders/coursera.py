@@ -76,5 +76,4 @@ class DC_Chapter_Spider( scrapy.Spider ):
         pass
 
 
-
 dc_dict = dict()
