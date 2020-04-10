@@ -1,13 +1,23 @@
 import scrapy
 from scrapy.crawler import  CrawlerProcess
+from time import sleep
 
 class DC_Chapter_Spider( scrapy.Spider ):
     name = "scraper"
 
+    base_url = 'https://www.coursera.org/courses?page={}&index=prod_all_products_term_optimization'
+
     def start_requests( self ):
         try:
-            base_url = 'https://www.coursera.org/courses?page=1&index=prod_all_products_term_optimization'
-            yield scrapy.Request( url=base_url, callback=self.parse_front )
+            page_num = 1
+            #for page in range(1, 100):
+            #    print("SCRAPING PAGE {} ...".format(page))
+            #    print("-"*15)
+            #    print("*"*15)
+            #    print("-"*15)
+            #    print("*"*15)
+            #    sleep(5)
+            yield scrapy.Request( url=self.base_url.format(1), callback=self.parse_front )
         except HTTPError as e:
             print(e)
 
@@ -54,9 +64,6 @@ class DC_Chapter_Spider( scrapy.Spider ):
                     course_url = "N / A"
                     pass
 
-
-
-
                 print('\n'+ str(count) + ('  |')+('<'*3)+('-'*7)+ ' ' + course_title +('-'*7)+('>'*3)+('|')+'\n')
                 #print(course_title)
                 print(course_rating)
@@ -69,6 +76,27 @@ class DC_Chapter_Spider( scrapy.Spider ):
                 count += 1
             except AttributeError as e:
                 print(e)
+
+
+        # Finding last page
+        #last_page = response.css("button#pagination_number_box_button::text").extrac()[-1]
+        # Finding current
+
+        #current_page = response.xpath("//*[contains(@class = ".current")]")
+        pages = response.css("div.pagination-controls-container")
+        xpath = '//*[contains(@class = ".class1")]'
+        current_page = pages.xpath('//*[contains(@class = ".current")]').extract_first()
+        if current_page:
+            print("NEXT PAGE FOUND!!!!!!!!!!!!!")
+            print("-"*15)
+            print("*"*15)
+            print("-"*15)
+            print("*"*15)
+        else:
+            print("ERROOOOOOOOORORRRRRRRRRRRRRRRRR")
+        #try:
+        #    yield scrapy.Request( url=base_url.format(1), callback=self.parse_front )
+        #except:
 
 
     def parse_pages( self, response ):
