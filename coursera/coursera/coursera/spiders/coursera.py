@@ -130,6 +130,3 @@ class DC_Chapter_Spider( scrapy.Spider ):
         for each course to scrape other details.
         """
         pass
-
-
-dc_dict = dict()
