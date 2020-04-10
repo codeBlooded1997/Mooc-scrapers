@@ -1,27 +1,36 @@
 import scrapy
 from scrapy.crawler import  CrawlerProcess
-from pdf_url.items import CourseraItem    # importing the data type we defined in the items.py file
+# Prevents server errors
 from time import sleep
+# For saving scraped data into a CSV
+import pandas as pd
 
 class DC_Chapter_Spider( scrapy.Spider ):
     name = "scraper"
 
     base_url = 'https://www.coursera.org/courses?page={}&index=prod_all_products_term_optimization'
+    course_titles = []
+    course_ratings = []
+    students_nums = []
+    course_urls = []
+
 
     def start_requests( self ):
+        """
+        This method requests the first page to start scraping.
+        """
         try:
-            #for page in range(1, 100):
-            #    print("SCRAPING PAGE {} ...".format(page))
-            #    print("-"*15)
-            #    print("*"*15)
-            #    print("-"*15)
-            #    print("*"*15)
-            #    sleep(5)
             yield scrapy.Request( url=self.base_url.format(1), callback=self.parse_front )
         except HTTPError as e:
             print(e)
 
     def parse_front( self, response ):
+        """
+        This method scrapes the frist page of the url,
+        Scrapes courses info,
+        Goes to the next page to scrape if it's availble and
+        Saves the extracted data in CSV format.
+        """
         # Narrow in to list of courses
         try:
             discovery_course = response.css( 'ul.ais-InfiniteHits-list' )
@@ -64,12 +73,20 @@ class DC_Chapter_Spider( scrapy.Spider ):
                     course_url = "N / A"
                     pass
 
+                self.course_titles.append(course_title)
+                self.course_ratings.append(course_rating)
+                self.students_nums.append(students_num)
+                self.course_urls.append(course_url)
+                # Saving extracted data in a table (CSV)
+                #self.item['course_title'] = course_title
+                #self.item['url'] = course_url
+                #self.item['rating'] = course_rating
+                #self.item['enrollment'] = students_num
+
                 print('\n'+ str(count) + ('  |')+('<'*3)+('-'*7)+ ' ' + course_title +('-'*7)+('>'*3)+('|')+'\n')
                 print( course_rating )
                 print( course_url )
                 print( students_num )
-                print()
-                print()
                 print()
                 print()
                 count += 1
@@ -78,24 +95,40 @@ class DC_Chapter_Spider( scrapy.Spider ):
 
         # Directing to pageiation section.
         pages = response.css( "div.pagination-controls-container" )
-        # Extracting current page number.
-        current_page = pages.xpath( '//button[contains(@class, "current")]' ).extract_first()
-        # Extrating last page number.
-        last_page = pages.css( 'button#pagination_number_box_button::text' ).extract()[-1]
+        if pages.xpath( '//button[contains(@class, "current")]' ) and pages.css( 'button#pagination_number_box_button::text' ):
+            # Extracting current page number.
+            current_page = pages.xpath( '//button[contains(@class, "current")]/text()' ).extract_first()
+            # Extrating last page number.
+            last_page = pages.css( 'button#pagination_number_box_button::text' ).extract()[-1]
+
+        else:
+            print("NOT FUCKIIIIING FOUND")
         # Checking if it is the last page.
         if int( current_page ) < int( last_page ):
-            print( "Going to last page..." )
             # Gettin to next page and start scraping it.
-            print("Getting page {} to scrape...")
+            print("Getting page {} to scrape...".format(int(current_page)+1))
             sleep(5)
-            yield ( url=self.base_url.format(current_page+1), callback=self.parse_front )
+            yield scrapy.Request( url=self.base_url.format(int(current_page)+1), callback=self.parse_front )
         else:
             print( "Page {} is last page.".format(current_page) )
-        #try:
-        #    yield scrapy.Request( url=base_url.format(1), callback=self.parse_front )
-        #except:
+            pass
+
+        result = pd.DataFrame(
+            {
+                'Course Title' : self.course_titles,
+                'Course Rating' : self.course_ratings,
+                'Course Enrollment' : self.students_nums,
+                'Course URL' : self.course_urls,
+            })
+
+        result.to_csv('result.csv', index=False)
+
 
     def parse_pages( self, response ):
+        """
+        This method can be updated to scrape the inner page
+        for each course to scrape other details.
+        """
         pass
 
 
