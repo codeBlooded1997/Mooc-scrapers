@@ -6,7 +6,7 @@ class DC_Chapter_Spider( scrapy.Spider ):
 
     def start_requests( self ):
         try:
-            base_url = 'https://www.coursera.org/courses'
+            base_url = 'https://www.coursera.org/courses?page=1&index=prod_all_products_term_optimization'
             yield scrapy.Request( url=base_url, callback=self.parse_front )
         except HTTPError as e:
             print(e)
@@ -53,6 +53,7 @@ class DC_Chapter_Spider( scrapy.Spider ):
                 else:
                     course_url = "N / A"
                     pass
+
 
 
 

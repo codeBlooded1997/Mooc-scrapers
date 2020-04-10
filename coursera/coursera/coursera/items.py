@@ -11,4 +11,7 @@ import scrapy
 class CourseraItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    pass
+    course_title = scrapy.Field()
+    rating = scrapy.Field()
+    enrollment = scrapy.Field()
+    url = scrapy.Field()
